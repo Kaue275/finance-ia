@@ -1,3 +1,5 @@
+from datetime import datetime 
+
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 from langchain.messages import HumanMessage
@@ -45,9 +47,9 @@ de 1 a 31 em todos os meses e nada mais que isso, os dias ficam quase como um í
 
 2. Como é uma planilha grande e complexa, vamos ter uma objeto que contém a transformação dos meses nas respectivas colunas da planilha, ex:
 {
-    "Janeiro": "B",
-    "Fevereiro": "C",
-    "Março": "D",
+    "1": "B",
+    "2": "C",
+    "3": "D",
 }
 
 3. O agente supervisor vai extrair o valor que foi gasto pelo usuário, extrair isso da mensagem (texto, áudio, arquivo) e enviar para o agente GoogleSheets, que vai fazer o registro
@@ -55,19 +57,24 @@ já com os parâmetros.
 """
 
 meses = {
-    "Janeiro": "D",
-    "Fevereiro": "J",
-    "Março": "P",
-    "Abril": "V",
-    "Maio": "AB",
-    "Junho": "AH",
-    "Julho": "AN",
-    "Agosto": "AT",
-    "Setembro": "AZ",
-    "Outubro": "BF",
-    "Novembro": "BL",
-    "Dezembro": "BR"
+    1: "D",
+    2: "J",
+    3: "P",
+    4: "V",
+    5: "AB",
+    6: "AH",
+    7: "AN",
+    8: "AT",
+    9: "AZ",
+    10: "BF",
+    11: "BL",
+    12: "BR"
 }
+
+def monta_coluna(timestamp: datetime) -> str:
+    """Monta a célula da planilha com base no timestamp da mensagem do usuário,
+    usando o mês para a coluna e o dia para a linha"""
+    return f"{meses[timestamp.month]}{timestamp.day}"
 
 agent = create_agent(
     __llm,

@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from fastapi import FastAPI
 from agents.base_agent.app import executa_agent
 from pydantic import BaseModel
@@ -8,7 +8,7 @@ app = FastAPI()
 
 class ChatRequest(BaseModel):
     message: str
-    timestamp: datetime.datetime
+    timestamp: datetime
 
 @app.post("/chat")
 def chat_endpoint(chat_request: ChatRequest) -> str:
