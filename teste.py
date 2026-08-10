@@ -1,31 +1,17 @@
 from datetime import datetime
 
-meses = {
-    1: "D",
-    2: "J",
-    3: "P",
-    4: "V",
-    5: "AB",
-    6: "AH",
-    7: "AN",
-    8: "AT",
-    9: "AZ",
-    10: "BF",
-    11: "BL",
-    12: "BR"
-}
-
-def monta_coluna(timestamp: datetime) -> str:
-    """Monta a célula da planilha com base no timestamp da mensagem do usuário,
-    usando o mês para a coluna e o dia para a linha"""
-    return f"{meses[timestamp.month]}{timestamp.day}"
-
+from src.services.monta_celula import monta_celula
 
 if __name__ == "__main__":
-    # SIMULAÇÃO: Criando um timestamp para o dia 15 de Março de 2026 às 14:30
-    timestamp_simulado = datetime(2026, 3, 15, 14, 30)
-    
-    # Executa a função com o timestamp simulado
-    resultado = monta_coluna(timestamp_simulado)
-    
-    print(f"Output gerado: {resultado}") 
+    casos = [
+        (datetime(2026, 8, 1), "AT3"),    # dia 1 cai na linha 3 (cabeçalho)
+        (datetime(2026, 8, 2), "AT4"),
+        (datetime(2026, 1, 1), "D3"),
+        (datetime(2026, 3, 15), "P17"),
+        (datetime(2026, 12, 31), "BR33"),  # último dia do último mês
+    ]
+
+    for timestamp, esperado in casos:
+        obtido = monta_celula(timestamp)
+        status = "OK " if obtido == esperado else "FALHOU"
+        print(f"{status} {timestamp:%d/%m/%Y} -> {obtido} (esperado {esperado})")
