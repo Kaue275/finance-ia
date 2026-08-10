@@ -6,8 +6,12 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 from src.agents.base_agent.app import executa_agent
+from src.uazapi.main import router as uazapi_router
 
 app = FastAPI()
+
+# Webhook do WhatsApp: POST /uazapi/webhook
+app.include_router(uazapi_router)
 
 
 class ChatRequest(BaseModel):
