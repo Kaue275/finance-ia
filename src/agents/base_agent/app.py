@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 from langchain.messages import HumanMessage
-from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.checkpoint.memory import InMemorySaver
 
 load_dotenv()
@@ -109,33 +108,6 @@ __llm = init_chat_model(
     temperature=0.7,
 )
 
-client = MultiServerMCPClient(
-    {
-        "sheets": {
-            "transport": "stdio",
-            "command": sys.executable,
-            "args": [str(_MCP_SERVER)],
-        }
-    }
-)
-
-# Memória de curto prazo: guarda o histórico de cada conversa em RAM, por thread_id.
-# Serve para o agente lembrar do que já perguntou — ex: pediu o valor no turno anterior
-# e recebe só "25" agora. Como é in-memory, o histórico se perde ao reiniciar o processo.
-checkpointer = InMemorySaver()
-
-_tools = None
-
-
-async def _get_tools():
-    """Carrega as tools do MCP uma única vez.
-    `get_tools()` é assíncrono, por isso não pode rodar no import."""
-    global _tools
-    if _tools is None:
-        _tools = await client.get_tools()
-    return _tools
-
-
 async def executa_agent(
     texto_usuario: str,
     timestamp: datetime,
@@ -153,21 +125,21 @@ async def executa_agent(
             decidir conscientemente, porque um id novo a cada turno apaga a
             memória sem dar erro nenhum. No futuro, o número de WhatsApp.
     """
-    tools = await _get_tools()
 
     # O agente é remontado a cada turno porque o system prompt carrega o momento atual.
     # É só construção de objeto em memória (sem I/O); as tools e o checkpointer, que são
     # os caros, ficam cacheados.
-    agent = create_agent(
-        __llm,
-        tools=tools,
-        system_prompt=_monta_system_prompt(timestamp),
-        checkpointer=checkpointer,
-    )
+    # agent = create_agent(
+    #     __llm,
+    #     tools=tools,
+    #     system_prompt=_monta_system_prompt(timestamp),
+    #     checkpointer=checkpointer,
+    # )
 
-    agent_result = await agent.ainvoke(
-        {"messages": [HumanMessage(content=texto_usuario)]},
-        config={"configurable": {"thread_id": thread_id}},
-    )
+    # agent_result = await agent.ainvoke(
+    #     {"messages": [HumanMessage(content=texto_usuario)]},
+    #     config={"configurable": {"thread_id": thread_id}},
+    # )
 
-    return agent_result["messages"][-1].content
+    # return agent_result["messages"][-1].content
+    pass
