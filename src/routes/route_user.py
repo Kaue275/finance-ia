@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from database import get_db
-from routes.models import model_user
+from controller.user_controller import create_user
+from exceptions.user_exception import UserError
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ class UserCreate(BaseModel):
 
 @router.post("/users", response_model=ResponseUser)
 def register_user(data: UserCreate, db: Session = Depends(get_db)) -> ResponseUser:
-    model_user.create_user(
+    create_user(
         db=db, 
         username = data.username, 
         email = data.email, 
